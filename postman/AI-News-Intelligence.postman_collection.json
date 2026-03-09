@@ -1,0 +1,329 @@
+{
+  "info": {
+    "_postman_id": "d6ad979e-4d79-4f5f-8a6f-8a6f4f2d1d45",
+    "name": "AI News Intelligence Platform",
+    "description": "Complete API collection for AI News Intelligence & Fake News Detection backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "health"
+              ]
+            },
+            "description": "Checks API, PostgreSQL, and Redis health status."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test('Body has status', function () {",
+                  "    pm.expect(body).to.have.property('status');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Analysis",
+      "item": [
+        {
+          "name": "POST Analyze (Raw Text)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Global leaders met at a summit today to discuss climate financing and food security challenges across developing nations. Officials announced a multilateral package and independent observers confirmed that negotiations included both private and public sector commitments. Critics claim the figures were inflated, while organizers insist the numbers are verified and subject to follow-up audits over the next two quarters.\",\n  \"include_detailed_summary\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/analyze",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "analyze"
+              ]
+            },
+            "description": "Queues a new analysis job using direct article text."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 202 Accepted', function () {",
+                  "    pm.response.to.have.status(202);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test('Response has job_id and article_id', function () {",
+                  "    pm.expect(body).to.have.property('job_id');",
+                  "    pm.expect(body).to.have.property('article_id');",
+                  "});",
+                  "if (body.job_id) { pm.collectionVariables.set('job_id', body.job_id); }",
+                  "if (body.article_id) { pm.collectionVariables.set('article_id', body.article_id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Analyze (URL)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{api_key}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://www.bbc.com/news/world-us-canada-66231858\",\n  \"include_detailed_summary\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/analyze",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "analyze"
+              ]
+            },
+            "description": "Queues a new analysis job by scraping article content from URL."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 202 Accepted', function () {",
+                  "    pm.response.to.have.status(202);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "if (body.job_id) { pm.collectionVariables.set('job_id', body.job_id); }",
+                  "if (body.article_id) { pm.collectionVariables.set('article_id', body.article_id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Job Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/status/{{job_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "status",
+                "{{job_id}}"
+              ]
+            },
+            "description": "Polls queued/completed/failed analysis status."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test('Status field exists', function () {",
+                  "    pm.expect(body).to.have.property('status');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Article By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/article/{{article_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "article",
+                "{{article_id}}"
+              ]
+            },
+            "description": "Fetches article payload plus the latest analysis output."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test('Article payload has article_id', function () {",
+                  "    pm.expect(body).to.have.property('article_id');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Summarization",
+      "item": [
+        {
+          "name": "POST Summarize Existing Article",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-api-key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"article_id\": \"{{article_id}}\",\n  \"include_detailed_summary\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/summarize",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "summarize"
+              ]
+            },
+            "description": "Creates a new summarization/analysis job for an already stored article."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 or 202', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 202]);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "if (body.job_id) { pm.collectionVariables.set('job_id', body.job_id); }"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Ensure required runtime variables are present.",
+          "if (!pm.collectionVariables.get('base_url') && !pm.environment.get('base_url')) {",
+          "    pm.collectionVariables.set('base_url', 'http://localhost:8000');",
+          "}",
+          "if (!pm.collectionVariables.get('api_key') && !pm.environment.get('api_key')) {",
+          "    pm.collectionVariables.set('api_key', 'local-dev-key');",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "api_key",
+      "value": "local-dev-key"
+    },
+    {
+      "key": "article_id",
+      "value": ""
+    },
+    {
+      "key": "job_id",
+      "value": ""
+    }
+  ]
+}

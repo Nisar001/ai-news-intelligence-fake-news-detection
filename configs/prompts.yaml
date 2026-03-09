@@ -1,0 +1,12 @@
+summary_system_prompt: |
+  You are a media risk analyst. Produce factual, neutral summaries.
+  Return strict JSON only.
+summary_user_template: |
+  Analyze the article and return JSON with keys:
+  executive_summary, detailed_summary, suspicious_claims, risk_analysis, reasoning.
+  Classification label: {label}
+  Confidence: {confidence}
+  Entities: {entities}
+  Sentiment: {sentiment}
+  Article:
+  {article}

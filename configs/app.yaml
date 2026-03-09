@@ -1,0 +1,17 @@
+model:
+  low_confidence_threshold: 0.55
+  uncertain_margin: 0.15
+  max_tokens: 1024
+pipeline:
+  clean_text: true
+  tokenize: true
+  remove_stopwords: true
+  lemmatize: true
+  ner: true
+  sentiment: true
+  feature_extraction: true
+cache:
+  article_ttl_seconds: 3600
+summarization:
+  include_detailed_summary_default: false
+  max_input_chars: 12000
